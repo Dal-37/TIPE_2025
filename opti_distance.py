@@ -29,18 +29,21 @@ def meca(F,theta_0):
     
     return theta()
 
-seuil = 130 #rad.s^-1
-modele = induction()[0] #On commence par considérer le freinage par induction à hautes vitesse
-courbe = [] #comportement final
-for i in  t:
-    if modele[i] < seuil:
-        break
-    else:
-        courbe.append(modele[i])
-#on passe au freinage mécanique
-courbe += meca(F,courbe[-1])[0]
+def distance(I,F):
+    seuil = 130 #rad.s^-1
+    modele = induction()[0] #On commence par considérer le freinage par induction à hautes vitesse
+    courbe = [] #comportement final
+    for i in  t:
+        if modele[i] < seuil:
+            break
+        else:
+            courbe.append(modele[i])
+    #on passe au freinage mécanique
+    courbe += meca(F,courbe[-1])[0]
     
-#On determine la distance parcourue
-d = 0
-for i in range(len(courbe)):
-    d += R*courbe[i]*dt
+    #On determine la distance parcourue
+    d = 0
+    for i in range(len(courbe)):
+        d += R*courbe[i]*dt
+
+    return d
