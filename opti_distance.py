@@ -67,3 +67,5 @@ def usure(t_i, F):
         V += K*F*R*courbe[i]*dt/H
 
     return V
+
+#Tracé des courbes de la distance et de l'usure en fonction de l'intensité, de la force et du seuil
