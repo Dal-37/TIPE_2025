@@ -7,11 +7,14 @@ mu = 0.69
 t_min = 0
 t_max = 7.5
 dt = 0.001
+
+t_i = 0 #instant (indice dans la liste) à partir duquel le freinage mécanique débute
+
 t = np.arange(t_min,t_max,dt)
 def induction(I,theta_0):
     tau = a*I
     def dy(theta):
-        return [theta[1], tau*theta[1]]
+        return [theta[1], 1/tau*theta[1]]
     
     def theta(t):
         res = odeint(dy, theta_0,t)
@@ -29,13 +32,17 @@ def meca(F,theta_0):
     
     return theta()
 
+courbe = [] #comportement final
 def distance(I,F):
+    global t_i, courbe
     seuil = 130 #rad.s^-1
-    modele = induction()[0] #On commence par considérer le freinage par induction à hautes vitesse
-    courbe = [] #comportement final
+    modele = induction(I, [300, -1/(a*I)])[0] #On commence par considérer le freinage par induction à hautes vitesse
+    
     for i in  t:
         if modele[i] < seuil:
+            t_i = i
             break
+            
         else:
             courbe.append(modele[i])
     #on passe au freinage mécanique
@@ -47,3 +54,16 @@ def distance(I,F):
         d += R*courbe[i]*dt
 
     return d
+
+H = 1 #dureté du matériau
+K = 1 #constante d'Archard adimensionée
+def usure(t_i, F):
+    """On va utiliser la loi d'Archard qui donne le volume perdu au cours du freinage
+        On va sommer des petits élement de volume, correspondant au volume perdu pendant dt
+        """
+    global courbe
+    V = 0
+    for i in range(courbe[t_i:]):
+        V += K*F*R*courbe[i]*dt/H
+
+    return V
